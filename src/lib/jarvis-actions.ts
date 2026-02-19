@@ -122,8 +122,9 @@ export async function generateAndArchiveProposal(leadId: string, clientName: str
 
         return "Proposal generated and archived to Intelligence folder.";
 
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error("Jarvis Proposal Error:", e);
-        throw new Error(`Proposal generation failed: ${e.message}`);
+        const errorMessage = e instanceof Error ? e.message : "Unknown error";
+        throw new Error(`Proposal generation failed: ${errorMessage}`);
     }
 }

@@ -3,21 +3,51 @@
 > next build
 
 Ôû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
 
+ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 11.0s
-  Running TypeScript ...
-Failed to compile.
 
-./src/app/page.tsx:24:18
-Type error: Type '{ clientName: string; projectType: string; heatLevel: "Hot"; key: number; } | { clientName: string; projectType: string; heatLevel: "Warm"; key: number; } | { clientName: string; projectType: string; heatLevel: "Cold"; key: number; }' is not assignable to type 'IntrinsicAttributes & LeadCardProps'.
-  Type '{ clientName: string; projectType: string; heatLevel: "Hot"; key: number; }' is missing the following properties from type 'LeadCardProps': id, status, notes
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./src/utils/supabase/server.ts:2:1
+Ecmascript file had an error
+  1 | import { createServerClient } from '@supabase/ssr'
+> 2 | import { cookies } from 'next/headers'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 |
+  4 | export async function createClient() {
+  5 |   const cookieStore = await cookies()
 
-  22 |             <div className="grid gap-4 sm:grid-cols-2">
-  23 |               {leads.map((lead, index) => (
-> 24 |                 <LeadCard key={index} {...lead} />
-     |                  ^
-  25 |               ))}
-  26 |             </div>
-  27 |           </section>
-Next.js build worker exited with code: 1 and signal: null
+You're importing a component that needs "next/headers". That only works in a Server Component which is not supported in the pages/ directory. Read more: https://nextjs.org/docs/app/building-your-application/rendering/server-components
+
+
+
+Import traces:
+  App Route:
+    ./src/utils/supabase/server.ts
+    ./src/app/api/jarvis/route.ts
+
+  Server Component:
+    ./src/utils/supabase/server.ts
+    ./src/lib/crm.ts
+    ./src/app/page.tsx
+
+  Client Component Browser:
+    ./src/utils/supabase/server.ts [Client Component Browser]
+    ./src/lib/crm.ts [Client Component Browser]
+    ./src/components/project/IntelligenceView.tsx [Client Component Browser]
+    ./src/components/project/ProjectTabs.tsx [Client Component Browser]
+    ./src/components/project/ProjectTabs.tsx [Server Component]
+    ./src/app/admin/projects/[id]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/utils/supabase/server.ts [Client Component SSR]
+    ./src/lib/crm.ts [Client Component SSR]
+    ./src/components/project/IntelligenceView.tsx [Client Component SSR]
+    ./src/components/project/ProjectTabs.tsx [Client Component SSR]
+    ./src/components/project/ProjectTabs.tsx [Server Component]
+    ./src/app/admin/projects/[id]/page.tsx [Server Component]
+
+
+    at <unknown> (./src/utils/supabase/server.ts:2:1)

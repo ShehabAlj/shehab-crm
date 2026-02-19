@@ -1,0 +1,116 @@
+
+> shehab-crm@0.1.0 lint
+> eslint
+
+
+C:\Projects\Shehab CRM\src\app\admin\projects\[id]\page.tsx
+  3:10  warning  'getLeadsFromDb' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\app\api\jarvis\route.ts
+  19:13  error  'detectedClient' is never reassigned. Use 'const' instead  prefer-const
+  95:13  error  'results' is never reassigned. Use 'const' instead         prefer-const
+
+C:\Projects\Shehab CRM\src\app\api\jarvis\telegram\route.ts
+   3:10  warning  'getLeadsFromDb' is defined but never used       @typescript-eslint/no-unused-vars
+   3:26  warning  'updateLeadInDb' is defined but never used       @typescript-eslint/no-unused-vars
+   3:42  warning  'createLeadInDb' is defined but never used       @typescript-eslint/no-unused-vars
+   4:10  warning  'getProjectAnalysis' is defined but never used   @typescript-eslint/no-unused-vars
+   4:30  warning  'saveProjectAnalysis' is defined but never used  @typescript-eslint/no-unused-vars
+  41:15  warning  'sender' is assigned a value but never used      @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\app\api\leads\route.ts
+  42:12  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  58:22  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projects\Shehab CRM\src\app\page.tsx
+  4:10  warning  'JarvisCommand' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\app\settings\page.tsx
+   4:3   warning  'User' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  37:10  warning  'webhookStatus' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  37:25  warning  'setWebhookStatus' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  44:5   error    Error: Cannot access variable before it is declared
+
+`checkIntegrations` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Projects\Shehab CRM\src\app\settings\page.tsx:44:5
+  42 |   useEffect(() => {
+  43 |     setMounted(true);
+> 44 |     checkIntegrations();
+     |     ^^^^^^^^^^^^^^^^^ `checkIntegrations` accessed before it is declared
+  45 |     
+  46 |     const getUser = async () => {
+  47 |         const { data: { user } } = await supabase.auth.getUser();
+
+C:\Projects\Shehab CRM\src\app\settings\page.tsx:53:3
+  51 |   }, [supabase]);
+  52 |
+> 53 |   const checkIntegrations = async () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 54 |       try {
+     | ^^^^^^^^^^^
+> 55 |           // Check Google Sheets via Leads API
+     | ^^^^^^^^^^^
+> 56 |           const res = await fetch('/api/leads?limit=1');
+     | ^^^^^^^^^^^
+> 57 |           if (res.ok) setDbStatus('connected');
+     | ^^^^^^^^^^^
+> 58 |           else setDbStatus('error');
+     | ^^^^^^^^^^^
+> 59 |       } catch (e) {
+     | ^^^^^^^^^^^
+> 60 |           setDbStatus('error');
+     | ^^^^^^^^^^^
+> 61 |       }
+     | ^^^^^^^^^^^
+> 62 |   };
+     | ^^^^^ `checkIntegrations` is declared here
+  63 |
+  64 |   const handleSignOut = async () => {
+  65 |       await supabase.auth.signOut();  react-hooks/immutability
+  59:16  warning  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\AISummary.tsx
+  4:20  warning  'MessageSquare' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\IncomingLeadsList.tsx
+   3:20  warning  'useEffect' is defined but never used     @typescript-eslint/no-unused-vars
+   4:36  warning  'ExternalLink' is defined but never used  @typescript-eslint/no-unused-vars
+  22:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\JarvisCommand.tsx
+  44:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\LeadCard.tsx
+   3:10  warning  'Flame' is defined but never used                     @typescript-eslint/no-unused-vars
+   3:27  warning  'MoreHorizontal' is defined but never used            @typescript-eslint/no-unused-vars
+   3:49  warning  'ArrowRight' is defined but never used                @typescript-eslint/no-unused-vars
+  10:6   warning  'HeatLevel' is defined but never used                 @typescript-eslint/no-unused-vars
+  19:7   warning  'heatLevelStyles' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\project\CommunicationView.tsx
+  4:16  warning  'MessageSquare' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\project\DeliverablesView.tsx
+   7:36  warning  'lead' is defined but never used          @typescript-eslint/no-unused-vars
+  23:37  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projects\Shehab CRM\src\components\project\IntelligenceView.tsx
+  6:46  warning  'saveProjectAnalysis' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\project\ProjectHeader.tsx
+  1:21  warning  'Clock' is defined but never used       @typescript-eslint/no-unused-vars
+  1:28  warning  'DollarSign' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\lib\crm.ts
+  137:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projects\Shehab CRM\src\lib\jarvis-actions.ts
+  125:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projects\Shehab CRM\src\utils\supabase\middleware.ts
+  20:48  warning  'options' is defined but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 36 problems (7 errors, 29 warnings)
+  2 errors and 0 warnings potentially fixable with the `--fix` option.
+

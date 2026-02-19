@@ -2,11 +2,11 @@
 
 import { CheckCircle2, Circle } from "lucide-react";
 import { Lead } from "@/lib/googleSheets";
-import { ProjectDetails } from "@/lib/crm";
+import { ProjectDetails, Milestone } from "@/lib/crm";
 
 export function DeliverablesView({ lead, details }: { lead: Lead, details: ProjectDetails | null }) {
     // Mock milestones for now
-    const milestones = details?.milestones || [
+    const milestones: Milestone[] = details?.milestones || [
         { id: '1', title: 'Project Kickoff & Requirements', status: 'Done' },
         { id: '2', title: 'Wireframe & Design Approval', status: 'In Progress' },
         { id: '3', title: 'Database Schema & API Setup', status: 'Pending' },
@@ -20,7 +20,7 @@ export function DeliverablesView({ lead, details }: { lead: Lead, details: Proje
             <h3 className="text-lg font-semibold text-white mb-6">Milestone Checklist</h3>
             
             <div className="space-y-3">
-                {milestones.map((m: any) => (
+                {milestones.map((m) => (
                     <div key={m.id} className="group flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-all cursor-pointer">
                         {m.status === 'Done' ? (
                             <CheckCircle2 className="h-6 w-6 text-emerald-500" />

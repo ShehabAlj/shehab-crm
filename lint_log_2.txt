@@ -1,0 +1,84 @@
+
+> shehab-crm@0.1.0 lint
+> eslint
+
+
+C:\Projects\Shehab CRM\src\app\admin\projects\[id]\page.tsx
+  3:10  warning  'getLeadsFromDb' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\app\api\jarvis\route.ts
+  95:13  error  'results' is never reassigned. Use 'const' instead  prefer-const
+
+C:\Projects\Shehab CRM\src\app\api\jarvis\telegram\route.ts
+   3:10  warning  'getLeadsFromDb' is defined but never used       @typescript-eslint/no-unused-vars
+   3:26  warning  'updateLeadInDb' is defined but never used       @typescript-eslint/no-unused-vars
+   3:42  warning  'createLeadInDb' is defined but never used       @typescript-eslint/no-unused-vars
+   4:10  warning  'getProjectAnalysis' is defined but never used   @typescript-eslint/no-unused-vars
+   4:30  warning  'saveProjectAnalysis' is defined but never used  @typescript-eslint/no-unused-vars
+  41:15  warning  'sender' is assigned a value but never used      @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\app\api\leads\route.ts
+  42:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\app\page.tsx
+  4:10  warning  'JarvisCommand' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\app\settings\page.tsx
+   4:3   warning  'User' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  37:10  warning  'webhookStatus' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+  37:25  warning  'setWebhookStatus' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  49:16  warning  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  56:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\Shehab CRM\src\app\settings\page.tsx:56:5
+  54 |   // Prevent hydration mismatch & Fetch User
+  55 |   useEffect(() => {
+> 56 |     setMounted(true);
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  57 |     checkIntegrations();
+  58 |     
+  59 |     const getUser = async () => {  react-hooks/set-state-in-effect
+
+C:\Projects\Shehab CRM\src\components\AISummary.tsx
+  4:20  warning  'MessageSquare' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\IncomingLeadsList.tsx
+   3:20  warning  'useEffect' is defined but never used     @typescript-eslint/no-unused-vars
+   4:36  warning  'ExternalLink' is defined but never used  @typescript-eslint/no-unused-vars
+  22:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\JarvisCommand.tsx
+  44:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\LeadCard.tsx
+   3:10  warning  'Flame' is defined but never used                     @typescript-eslint/no-unused-vars
+   3:27  warning  'MoreHorizontal' is defined but never used            @typescript-eslint/no-unused-vars
+   3:49  warning  'ArrowRight' is defined but never used                @typescript-eslint/no-unused-vars
+  10:6   warning  'HeatLevel' is defined but never used                 @typescript-eslint/no-unused-vars
+  19:7   warning  'heatLevelStyles' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\project\CommunicationView.tsx
+  4:16  warning  'MessageSquare' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\project\DeliverablesView.tsx
+  7:36  warning  'lead' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\project\IntelligenceView.tsx
+  6:46  warning  'saveProjectAnalysis' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\components\project\ProjectHeader.tsx
+  1:21  warning  'Clock' is defined but never used       @typescript-eslint/no-unused-vars
+  1:28  warning  'DollarSign' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projects\Shehab CRM\src\utils\supabase\middleware.ts
+  20:48  warning  'options' is defined but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 31 problems (2 errors, 29 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

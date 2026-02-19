@@ -130,11 +130,17 @@ export async function syncLeadsFromSheets(sheetLeads: GoogleSheetLead[]) {
 }
 
 // --- Project Details (Chat Logs, Milestones) ---
+export interface Milestone {
+    id: string;
+    title: string;
+    status: 'Pending' | 'In Progress' | 'Done';
+}
+
 export interface ProjectDetails {
     id?: string;
     lead_id: string; // Foreign Key matches leads.id
     chat_logs?: string;
-    milestones?: any[]; // JSONB
+    milestones?: Milestone[]; // JSONB
     ai_summary?: string; 
     proposal_draft?: string;
     user_id?: string;

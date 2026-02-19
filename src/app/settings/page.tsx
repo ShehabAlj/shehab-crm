@@ -13,7 +13,7 @@ import {
   Sun
 } from "lucide-react";
 import { Loader2, RefreshCw } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 
@@ -36,19 +36,9 @@ export default function SettingsPage() {
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const [webhookStatus, setWebhookStatus] = useState<'checking' | 'connected' | 'error'>('error'); // Mock for now
 
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
-  // Prevent hydration mismatch & Fetch User
-  useEffect(() => {
-    setMounted(true);
-    checkIntegrations();
-    
-    const getUser = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) setUserEmail(user.email || "Admin");
-    };
-    getUser();
-  }, [supabase]);
+  // const supabase = createClient(); // Removed duplicate
 
   const checkIntegrations = async () => {
       try {
@@ -60,6 +50,25 @@ export default function SettingsPage() {
           setDbStatus('error');
       }
   };
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setMounted(true);
+  }, []);
+
+  // Fetch User & Integrations
+  useEffect(() => {
+    if (!mounted) return;
+    
+    checkIntegrations();
+    
+    const getUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) setUserEmail(user.email || "Admin");
+    };
+    getUser();
+  }, [supabase, mounted]);
 
   const handleSignOut = async () => {
       await supabase.auth.signOut();

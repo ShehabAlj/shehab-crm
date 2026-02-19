@@ -16,7 +16,7 @@ export async function POST(req: Request) {
         // 2. Identify Subject (Simple Heuristic or AI-based if needed)
         // For efficiency, we check if any client name appears in the command
         let focusedContext = "";
-        let detectedClient = leads?.find(l => command.toLowerCase().includes(l.client_name.toLowerCase()));
+        const detectedClient = leads?.find(l => command.toLowerCase().includes(l.client_name.toLowerCase()));
         
         if (detectedClient) {
             const deepContext = await getDeepClientContext(detectedClient.id);
@@ -92,7 +92,8 @@ export async function POST(req: Request) {
         const content = aiData.choices?.[0]?.message?.content || "";
 
         // 4. Parse & Execute logic...
-        let results = [];
+        // 4. Parse & Execute logic...
+        const results: string[] = [];
         let finalReply = content; // Default to raw text if no JSON found
 
         try {
@@ -100,8 +101,11 @@ export async function POST(req: Request) {
             const jsonMatch = content.match(/\[[\s\S]*\]/) || content.match(/\{[\s\S]*\}/);
             
             if (jsonMatch) {
-                const tools = JSON.parse(jsonMatch[0]);
-                const toolArray = Array.isArray(tools) ? tools : [tools];
+                const cleanJson = jsonMatch[0].replace(/```json/g, '').replace(/```/g, '');
+                const parsed = JSON.parse(cleanJson);
+                
+                // If it's an array of commands/results
+                const toolArray = Array.isArray(parsed) ? parsed : [parsed];
                 
                 for (const tool of toolArray) {
                     if (tool.tool === 'update_status') {

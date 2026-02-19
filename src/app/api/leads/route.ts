@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getIncomingLeads } from '@/lib/googleSheets';
-import { getLeadsFromDb, createLeadInDb, updateLeadInDb } from '@/lib/crm';
+import { getLeadsFromDb, createLeadInDb, updateLeadInDb, DbLead } from '@/lib/crm';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -55,7 +55,7 @@ export async function PATCH(request: Request) {
 
     // Map updates to DB columns if necessary, or pass raw if keys match? 
     // The body comes from frontend which uses camelCase. DB uses snake_case.
-    const dbUpdates: any = {};
+    const dbUpdates: Partial<DbLead> = {};
     if (updates.clientName) dbUpdates.client_name = updates.clientName;
     if (updates.projectType) dbUpdates.project_type = updates.projectType;
     if (updates.heatLevel) dbUpdates.heat_level = updates.heatLevel;

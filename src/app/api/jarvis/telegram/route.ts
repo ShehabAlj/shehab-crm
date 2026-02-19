@@ -52,17 +52,16 @@ export async function POST(req: Request) {
 
         if (mapError || !mapping || !mapping.user_id) {
             console.warn(`Unauthorized Telegram access attempt from Chat ID: ${chatId}`);
-            await sendMessage(chatId, "🚫 *Access Denied*\n\nYour Telegram account is not linked to Shehab CRM.\nPlease contact the system administrator.", 'Markdown');
-            return NextResponse.json({ ok: true }); // Return 200 to stop retries
+            await sendMessage(chatId, "🚫 *Access Denied*\n\nYour Telegram account is not linked to Shehab CRM.", 'Markdown');
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
         const userId = mapping.user_id;
 
-        // Process Command asynchronously if possible, or just await it. 
-        // Generative AI models might time out Telegram (limit ~30s?).
-        // For now, we await. If it takes too long, we might need a background queue.
-        
-        await processTelegramCommand(userId, text, chatId, sender);
+        // Process Command asynchronously (Fire-and-Forget) to prevent Telegram timeouts
+        processTelegramCommand(userId, text, chatId, sender).catch(err => {
+            console.error("Background Telegram Command Error:", err);
+        });
 
         return NextResponse.json({ ok: true });
     } catch (error) {

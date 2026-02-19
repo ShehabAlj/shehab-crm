@@ -1,0 +1,23 @@
+
+> shehab-crm@0.1.0 build
+> next build
+
+Ôû▓ Next.js 16.1.6 (Turbopack)
+
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 11.0s
+  Running TypeScript ...
+Failed to compile.
+
+./src/app/page.tsx:24:18
+Type error: Type '{ clientName: string; projectType: string; heatLevel: "Hot"; key: number; } | { clientName: string; projectType: string; heatLevel: "Warm"; key: number; } | { clientName: string; projectType: string; heatLevel: "Cold"; key: number; }' is not assignable to type 'IntrinsicAttributes & LeadCardProps'.
+  Type '{ clientName: string; projectType: string; heatLevel: "Hot"; key: number; }' is missing the following properties from type 'LeadCardProps': id, status, notes
+
+  22 |             <div className="grid gap-4 sm:grid-cols-2">
+  23 |               {leads.map((lead, index) => (
+> 24 |                 <LeadCard key={index} {...lead} />
+     |                  ^
+  25 |               ))}
+  26 |             </div>
+  27 |           </section>
+Next.js build worker exited with code: 1 and signal: null

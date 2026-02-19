@@ -1,0 +1,145 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
+import { findLeadByName, updateProjectStatus, getFinancialReport, generateAndArchiveProposal, getDeepClientContext } from '@/lib/jarvis-actions';
+
+export async function POST(req: Request) {
+    try {
+        const { command } = await req.json();
+        if (!command) return NextResponse.json({ error: "No command provided" }, { status: 400 });
+
+        const supabase = await createClient();
+        
+        // 1. Gather Global Context (Mini-State) - Scoped to User via RLS
+        const { data: leads } = await supabase.from('leads').select('id, client_name, status, project_value, notes');
+        const globalSummary = leads?.map(l => `- ${l.client_name} (${l.status})`).join('\n') || "No leads.";
+
+        // 2. Identify Subject (Simple Heuristic or AI-based if needed)
+        // For efficiency, we check if any client name appears in the command
+        let focusedContext = "";
+        let detectedClient = leads?.find(l => command.toLowerCase().includes(l.client_name.toLowerCase()));
+        
+        if (detectedClient) {
+            const deepContext = await getDeepClientContext(detectedClient.id);
+            if (deepContext) {
+                focusedContext = `
+                *** DEEP DIVE CONTEXT FOR: ${deepContext.client} ***
+                Status: ${deepContext.status} (Inactive for ${deepContext.days_inactive} days)
+                ${deepContext.stagnant ? "⚠️ STAGNATION WARNING: Project in 'Working' for >7 days without updates." : ""}
+                
+                LATEST TECHNICAL ANALYSIS:
+                ${deepContext.technical_summary}
+
+                COMMUNICATION LOGS:
+                ${deepContext.recent_chat_logs}
+
+                LATEST PROPOSAL DRAFT:
+                ${deepContext.latest_proposal.substring(0, 200)}...
+                `;
+            }
+        }
+
+        const systemPrompt = `
+            You are Jarvis, the Senior Strategic Consultant & Chief of Staff.
+            Your goal is to maximize ROI and project velocity. Use "Chain of Thought" reasoning.
+
+            GLOBAL PIPELINE:
+            ${globalSummary}
+
+            ${focusedContext}
+
+            INSTRUCTIONS:
+            1. If asking about a specific project (${detectedClient ? detectedClient.client_name : "detected above"}), synthesize the DEEP DIVE CONTEXT.
+            2. If the project is STAGNANT, proactively suggest an intervention.
+            3. When planning, outline a prioritized 3-step plan based on missing deliverables or next logical technical steps.
+            4. Be concise, high-density, and executive.
+
+            AVAILABLE TOOLS (Output JSON ONLY for actions):
+            
+            1. MOVE CARD: { "tool": "update_status", "client": "Name", "status": "New|In Talk|Working|Testing|Done" }
+            2. GENERATE PROPOSAL: { "tool": "generate_proposal", "client": "Name" }
+            3. FINANCIAL REPORT: { "tool": "financial_report" }
+
+            Example Chain of Thought Response:
+            "Analyzing Lava Cafe... Status is Working but stagnant (8 days). Technicals require 99.9% uptime. 
+            Plan:
+            1. Review server redundancy (Technical).
+            2. Schedule client sync to unblock (Management).
+            3. Update status to Testing if deployed.
+            
+            Shall I draft a technical review?"
+        `;
+
+        // 3. Call AI
+        const apiKey = process.env.OPENROUTER_API_KEY;
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://shehab-crm.com", 
+                "X-Title": "Shehab CRM"
+            },
+            body: JSON.stringify({
+                "model": "google/gemini-2.0-flash-001",
+                "messages": [
+                    { "role": "system", "content": systemPrompt },
+                    { "role": "user", "content": command }
+                ]
+            })
+        });
+
+        const aiData = await response.json();
+        const content = aiData.choices?.[0]?.message?.content || "";
+
+        // 4. Parse & Execute logic...
+        let results = [];
+        let finalReply = content; // Default to raw text if no JSON found
+
+        try {
+            // Attempt to find JSON in the response (It might be wrapped in markdown code blocks)
+            const jsonMatch = content.match(/\[[\s\S]*\]/) || content.match(/\{[\s\S]*\}/);
+            
+            if (jsonMatch) {
+                const tools = JSON.parse(jsonMatch[0]);
+                const toolArray = Array.isArray(tools) ? tools : [tools];
+                
+                for (const tool of toolArray) {
+                    if (tool.tool === 'update_status') {
+                        const lead = await findLeadByName(tool.client);
+                        if (lead) {
+                            const res = await updateProjectStatus(lead.id, tool.status);
+                            results.push(`[STATUS] ${res}`);
+                        } else {
+                            results.push(`[ERROR] Client '${tool.client}' not found.`);
+                        }
+                    } 
+                    else if (tool.tool === 'generate_proposal') {
+                         const lead = await findLeadByName(tool.client);
+                         if (lead) {
+                             // Context for proposal
+                             const fullLead = leads?.find(l => l.id === lead.id);
+                             const res = await generateAndArchiveProposal(lead.id, lead.client_name, fullLead?.project_value || 0, fullLead?.notes || "");
+                             results.push(`[PROPOSAL] ${res}`);
+                         } else {
+                             results.push(`[ERROR] Client '${tool.client}' not found.`);
+                         }
+                    }
+                    else if (tool.tool === 'financial_report') {
+                        const res = await getFinancialReport();
+                        results.push(`[FINANCE] ${res}`);
+                    }
+                }
+                finalReply = results.join('\n');
+            }
+        } catch (e) {
+            console.error("Jarvis Parse Error", e);
+            // If parse fails, just return the raw content (maybe it wasn't a tool call)
+        }
+
+        return NextResponse.json({ reply: finalReply });
+
+    } catch (error) {
+        console.error("Jarvis API Error:", error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}

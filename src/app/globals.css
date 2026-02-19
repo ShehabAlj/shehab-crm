@@ -1,26 +1,145 @@
 @import "tailwindcss";
+@config "../../tailwind.config.ts";
+
 
 :root {
-  --background: #ffffff;
+  --background: #F8F9FA;
   --foreground: #171717;
+  --card-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --accent: #007AFF;
+  --border-color: #e5e7eb;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card-bg);
+  --color-sidebar: var(--sidebar-bg);
+  --color-accent: var(--accent);
+  --color-border: var(--border-color);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Dark Mode Overrides (Selector-based for next-themes) */
+.dark {
+  --background: #050505;
+  --foreground: #ededed;
+  --card-bg: rgba(20, 20, 20, 0.6);
+  --sidebar-bg: rgba(30, 30, 30, 0.4);
+  --accent: #007AFF;
+  --border-color: rgba(255, 255, 255, 0.1);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Dark Mode Body Styles */
+.dark body {
+  background: linear-gradient(180deg, #0F111A 0%, #050505 100%);
+  background-attachment: fixed;
+  position: relative;
+}
+
+/* Ambient Radial Glows (Dark Mode Only) */
+.dark body::before {
+  content: '';
+  position: fixed;
+  top: -20%;
+  left: -10%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(0, 122, 255, 0.20) 0%, transparent 70%); /* Electric Blue */
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(80px);
+}
+
+.dark body::after {
+  content: '';
+  position: fixed;
+  bottom: -20%;
+  right: -10%;
+  width: 70%;
+  height: 70%;
+  background: radial-gradient(circle, rgba(94, 92, 230, 0.20) 0%, transparent 70%); /* Deep Purple */
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(100px);
+}
+
+/* Utilities */
+.glass-panel {
+  @apply backdrop-blur-3xl transition-colors duration-300;
+  background: rgba(255, 255, 255, 0.7); /* Light mode: Frosted White */
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.dark .glass-panel {
+  background: rgba(255, 255, 255, 0.05); /* Dark mode: Frosted Transparent */
+  border: 1px solid transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.glass-border-gradient {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.shadow-deep {
+  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+}
+.dark .shadow-deep {
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.glow-text {
+  color: #171717;
+  text-shadow: none;
+}
+.dark .glow-text {
+  color: #FFFFFF;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.text-brilliance {
+  text-shadow: none;
+}
+.dark .text-brilliance {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.led-indicator {
+  box-shadow: 0 0 2px currentColor;
+}
+.dark .led-indicator {
+  box-shadow: 0 0 8px currentColor;
+}
+
+.scanline {
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0),
+    rgba(0,0,0,0) 50%,
+    rgba(0,0,0,0.05) 50%,
+    rgba(0,0,0,0.05)
+  );
+  background-size: 100% 4px;
+}
+.dark .scanline {
+   background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0) 50%,
+    rgba(0,0,0,0.2) 50%,
+    rgba(0,0,0,0.2)
+  );
 }

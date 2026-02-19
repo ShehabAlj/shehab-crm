@@ -39,7 +39,10 @@ export async function updateSession(request: NextRequest) {
   // Allow /api/jarvis for now IF called securely, but ideally it should be user-scoped too.
   // Actually, allow /login and public assets.
   const isProtectedRoute = request.nextUrl.pathname.startsWith('/admin') || 
-                           (request.nextUrl.pathname.startsWith('/api') && !request.nextUrl.pathname.startsWith('/api/auth'))
+                           (request.nextUrl.pathname.startsWith('/api') && 
+                            !request.nextUrl.pathname.startsWith('/api/auth') && 
+                            !request.nextUrl.pathname.startsWith('/api/jarvis/telegram')
+                           )
 
   if (isProtectedRoute && !user) {
       // Redirect to login

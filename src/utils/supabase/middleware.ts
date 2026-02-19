@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
   // 1. Bypass Supabase Auth completely for Telegram Webhook
-  if (request.nextUrl.pathname === '/api/jarvis/telegram') {
+  if (request.nextUrl.pathname.startsWith('/api/jarvis/telegram')) {
     return NextResponse.next();
   }
 
@@ -13,6 +13,7 @@ export async function updateSession(request: NextRequest) {
     },
   })
 
+  // Create Supabase Client
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -41,8 +42,6 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Protect /admin and /api (except public webhooks or auth)
-  // Allow /api/jarvis for now IF called securely, but ideally it should be user-scoped too.
-  // Actually, allow /login and public assets.
   const isProtectedRoute = request.nextUrl.pathname.startsWith('/admin') || 
                            (request.nextUrl.pathname.startsWith('/api') && 
                             !request.nextUrl.pathname.startsWith('/api/auth') && 
@@ -56,6 +55,18 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url)
   }
 
-  // If user is logged in and visits key pages (like root /), update session
   return response
+}
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api/jarvis/telegram (Telegram Webhook)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api/jarvis/telegram|_next/static|_next/image|favicon.ico).*)',
+  ],
 }

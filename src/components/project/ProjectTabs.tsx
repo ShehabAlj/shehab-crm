@@ -5,12 +5,12 @@ import { Brain, MessageSquare, ListTodo, Archive } from "lucide-react";
 import { IntelligenceView } from "./IntelligenceView";
 import { CommunicationView } from "./CommunicationView";
 import { DeliverablesView } from "./DeliverablesView";
-import { ProjectDetails } from "@/lib/crm";
+import { ProjectDetails, ProjectAnalysis } from "@/types/crm";
 import { Lead } from "@/lib/googleSheets";
 
 type Tab = 'intelligence' | 'communication' | 'deliverables' | 'archive';
 
-export function ProjectTabs({ lead, details }: { lead: Lead, details: ProjectDetails | null }) {
+export function ProjectTabs({ lead, details, analysis }: { lead: Lead, details: ProjectDetails | null, analysis: ProjectAnalysis | null }) {
     const [activeTab, setActiveTab] = useState<Tab>('intelligence');
 
     return (
@@ -45,7 +45,7 @@ export function ProjectTabs({ lead, details }: { lead: Lead, details: ProjectDet
 
             {/* Content Area */}
             <div className="min-h-[500px]">
-                {activeTab === 'intelligence' && <IntelligenceView lead={lead} details={details} />}
+                {activeTab === 'intelligence' && <IntelligenceView lead={lead} details={details} initialAnalysis={analysis} />}
                 {activeTab === 'communication' && <CommunicationView lead={lead} details={details} />}
                 {activeTab === 'deliverables' && <DeliverablesView lead={lead} details={details} />}
                 {activeTab === 'archive' && (

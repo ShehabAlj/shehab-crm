@@ -1,6 +1,6 @@
 import { ProjectHeader } from "@/components/project/ProjectHeader";
 import { ProjectTabs } from "@/components/project/ProjectTabs";
-import { getLeadsFromDb, getProjectDetails, mapDbLeadToApp } from "@/lib/crm";
+import { getLeadsFromDb, getProjectDetails, getProjectAnalysis, mapDbLeadToApp } from "@/lib/crm";
 import { supabaseAdmin } from "@/lib/supabaseClient";
 
 export const revalidate = 0; // Fresh data
@@ -19,11 +19,12 @@ export default async function ProjectFolderPage({ params }: { params: Promise<{ 
 
     // Fetch Extended Details
     const details = await getProjectDetails(id);
+    const analysis = await getProjectAnalysis(id);
 
     return (
         <div className="min-h-screen bg-[#050505] p-10 flex flex-col gap-8">
             <ProjectHeader lead={lead} />
-            <ProjectTabs lead={lead} details={details} />
+            <ProjectTabs lead={lead} details={details} analysis={analysis} />
         </div>
     );
 }

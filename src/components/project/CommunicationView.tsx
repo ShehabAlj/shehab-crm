@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Save, MessageSquare } from "lucide-react";
 import { Lead } from "@/lib/googleSheets";
-import { ProjectDetails } from "@/lib/crm";
+import { ProjectDetails } from "@/types/crm";
 
 export function CommunicationView({ lead, details }: { lead: Lead, details: ProjectDetails | null }) {
     const [logs, setLogs] = useState(details?.chat_logs || lead.notes || "");

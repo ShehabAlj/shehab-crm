@@ -3,21 +3,25 @@
 import { useState, useEffect } from "react";
 import { Sparkles, FileText, Loader2, Save, Database, CheckCircle2 } from "lucide-react";
 import { Lead } from "@/lib/googleSheets";
-import { ProjectDetails, getProjectAnalysis, saveProjectAnalysis } from "@/lib/crm";
+import { ProjectDetails, ProjectAnalysis } from "@/types/crm";
+// import { saveProjectAnalysis } from "@/lib/crm"; // REMOVED: Server action not safe here. Using API route.
 
-export function IntelligenceView({ lead, details }: { lead: Lead, details: ProjectDetails | null }) {
+export function IntelligenceView({ lead, details, initialAnalysis }: { lead: Lead, details: ProjectDetails | null, initialAnalysis: ProjectAnalysis | null }) {
     const [loading, setLoading] = useState(false);
     const [syncing, setSyncing] = useState(false);
     const [synced, setSynced] = useState(false);
     
-    // State for transient AI output
-    const [summary, setSummary] = useState<string[]>([]);
-    const [proposal, setProposal] = useState<string>("");
+    // State for transient AI output - Initialize from props
+    const [summary, setSummary] = useState<string[]>(
+        initialAnalysis?.technical_summary ? initialAnalysis.technical_summary.split('\n') : []
+    );
+    const [proposal, setProposal] = useState<string>(initialAnalysis?.proposal_content || "");
 
-    // Load persisted analysis on mount
+    // Load persisted analysis on mount - REMOVED (Handled via props)
+    /*
     useEffect(() => {
         const loadSaved = async () => {
-            const saved = await getProjectAnalysis(lead.id);
+            const saved = await getProjectAnalysis(lead.id); // Error: Server function
             if (saved) {
                 if (saved.technical_summary) setSummary(saved.technical_summary.split('\n'));
                 if (saved.proposal_content) setProposal(saved.proposal_content);
@@ -25,6 +29,7 @@ export function IntelligenceView({ lead, details }: { lead: Lead, details: Proje
         };
         loadSaved();
     }, [lead.id]);
+    */
 
     const chatContext = details?.chat_logs || lead.notes || "";
 

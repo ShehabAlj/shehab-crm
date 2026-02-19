@@ -1,20 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { Lead as GoogleSheetLead } from './googleSheets';
-
-// Supabase Lead Interface (matches SQL schema)
-export interface DbLead {
-  id: string;
-  created_at: string;
-  client_name: string;
-  project_type: string;
-  heat_level: 'Cold' | 'Warm' | 'Hot';
-  status: 'New' | 'In Talk' | 'Working' | 'Testing' | 'Done';
-  project_value: number;
-  whatsapp?: string;
-  notes?: string;
-  last_synced_at?: string;
-  user_id?: string;
-}
+import { DbLead, ProjectDetails, Milestone } from '@/types/crm';
+export type { DbLead, ProjectDetails, Milestone }; // Re-export for server usage if needed
 
 // Convert DbLead to App Lead (CamelCase)
 export function mapDbLeadToApp(lead: DbLead): GoogleSheetLead {
@@ -129,23 +116,6 @@ export async function syncLeadsFromSheets(sheetLeads: GoogleSheetLead[]) {
     });
 }
 
-// --- Project Details (Chat Logs, Milestones) ---
-export interface Milestone {
-    id: string;
-    title: string;
-    status: 'Pending' | 'In Progress' | 'Done';
-}
-
-export interface ProjectDetails {
-    id?: string;
-    lead_id: string; // Foreign Key matches leads.id
-    chat_logs?: string;
-    milestones?: Milestone[]; // JSONB
-    ai_summary?: string; 
-    proposal_draft?: string;
-    user_id?: string;
-}
-
 export async function getProjectDetails(leadId: string): Promise<ProjectDetails | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -195,13 +165,8 @@ export async function saveProjectDetails(leadId: string, details: Partial<Projec
 }
 // --- Project Analysis (Permanent Archive) ---
 
-export interface ProjectAnalysis {
-  id?: string;
-  project_id: string; // References leads.id
-  proposal_content?: string;
-  technical_summary?: string;
-  last_updated?: string;
-}
+import { ProjectAnalysis } from '@/types/crm';
+export type { ProjectAnalysis };
 
 export async function getProjectAnalysis(projectId: string): Promise<ProjectAnalysis | null> {
     const supabase = await createClient();

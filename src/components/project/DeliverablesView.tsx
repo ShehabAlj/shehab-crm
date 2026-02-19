@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Circle } from "lucide-react";
 import { Lead } from "@/lib/googleSheets";
-import { ProjectDetails, Milestone } from "@/lib/crm";
+import { ProjectDetails, Milestone } from "@/types/crm";
 
 export function DeliverablesView({ lead, details }: { lead: Lead, details: ProjectDetails | null }) {
     // Mock milestones for now

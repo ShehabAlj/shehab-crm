@@ -1,7 +1,29 @@
 import { NextResponse } from 'next/server';
-import { createAdminClient } from '@/utils/supabase/admin';
-import { getLeadsFromDb, updateLeadInDb, createLeadInDb, DbLead } from '@/lib/crm'; 
-import { getProjectAnalysis, saveProjectAnalysis } from '@/lib/crm';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Service Role Client directly to bypass Auth/RLS
+const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false
+        }
+    }
+);
+
+// Define minimal interface to avoid importing from crm.ts
+interface DbLead {
+    id: string;
+    client_name: string;
+    project_type: string;
+    heat_level: string;
+    status: string;
+    project_value: number;
+    created_at: string;
+    user_id: string;
+}
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -33,7 +55,7 @@ export async function POST(req: Request) {
         
         // Only handle messages
         if (!update.message || !update.message.text) {
-            return NextResponse.json({ ok: true }); // Acknowledge to stop retries
+            return NextResponse.json({ ok: true }); 
         }
 
         const chatId = update.message.chat.id;
@@ -41,8 +63,6 @@ export async function POST(req: Request) {
         const sender = update.message.from.username;
 
         // 1. Authenticate User via Database Mapping
-        const supabaseAdmin = createAdminClient();
-        
         // Internal Security: Verify chat_id against telegram_users
         const { data: mapping, error: mapError } = await supabaseAdmin
             .from('telegram_users')
@@ -58,7 +78,7 @@ export async function POST(req: Request) {
 
         const userId = mapping.user_id;
 
-        // Process Command asynchronously (Fire-and-Forget) to prevent Telegram timeouts
+        // Process Command asynchronously (Fire-and-Forget)
         processTelegramCommand(userId, text, chatId, sender).catch(err => {
             console.error("Background Telegram Command Error:", err);
         });
@@ -66,14 +86,11 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true });
     } catch (error) {
         console.error('Telegram Webhook Error:', error);
-        // CRITICAL: Return 200 OK to prevent Telegram from retrying on error
         return NextResponse.json({ ok: true }); 
     }
 }
 
 async function processTelegramCommand(userId: string, text: string, chatId: number, sender: string) {
-    const supabaseAdmin = createAdminClient();
-
     // 2. Command Processing
     if (text.startsWith('/start')) {
         await sendMessage(chatId, "👋 *Jarvis Online*\n\nI am connected to your CRM. Commands:\n\n• /leads - View Hot/Active leads\n• /move [client] [status] - Update pipeline\n• /analyze [client] - AI Strategic Analysis", 'Markdown');
@@ -106,6 +123,8 @@ async function processTelegramCommand(userId: string, text: string, chatId: numb
 
         await sendMessage(chatId, msg);
     }
+    
+
 
     else if (text.startsWith('/move')) {
          // Format: /move [Client Name] [Status]

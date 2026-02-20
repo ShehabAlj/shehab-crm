@@ -1,4 +1,13 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
 import { getRecentMemory, saveMemory } from '@/lib/jarvis-memory';
+import { 
+    getDeepClientContext, 
+    findLeadByName, 
+    updateProjectStatus, 
+    generateAndArchiveProposal, 
+    getFinancialReport 
+} from '@/lib/crm';
 
 export async function POST(req: Request) {
     try {

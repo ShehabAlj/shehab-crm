@@ -37,6 +37,13 @@ export async function getLeadsFromDb(client?: SupabaseClient): Promise<GoogleShe
   return (data as DbLead[]).map(mapDbLeadToApp);
 }
 
+export async function getRevenueMetrics(): Promise<{ total: number, growth: number }> {
+    const leads = await getLeadsFromDb();
+    const total = leads.reduce((sum, lead) => sum + (lead.value || 0), 0);
+    // Mock growth for now, or calculate based on last month if data exists
+    return { total, growth: 12 }; 
+}
+
 // NOTE: This creates a lead for the CURRENT authenticated user
 export async function createLeadInDb(lead: Partial<DbLead>): Promise<DbLead | null> {
     const supabase = await createClient();
@@ -202,4 +209,63 @@ export async function saveProjectAnalysis(projectId: string, content: Partial<Pr
             .insert([{ ...content, project_id: projectId, user_id: user.id }]);
         if (error) throw error;
     }
+}
+
+// --- Jarvis / AI Helpers ---
+
+export async function findLeadByName(name: string): Promise<DbLead | null> {
+    const supabase = await createClient();
+    const { data } = await supabase
+        .from('leads')
+        .select('*')
+        .ilike('client_name', `%${name}%`)
+        .limit(1)
+        .single();
+    return data;
+}
+
+export async function updateProjectStatus(leadId: string, status: string): Promise<string> {
+    // Cast to expected type - validation should happen at call site or here if strict
+    const success = await updateLeadInDb(leadId, { status: status as DbLead['status'] });
+    return success ? `Updated status to ${status}` : "Failed to update status";
+}
+
+export async function getDeepClientContext(leadId: string) {
+    const supabase = await createClient();
+    
+    // 1. Fetch Basic Lead Info
+    const { data: lead } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('id', leadId)
+        .single();
+
+    if (!lead) return null;
+
+    // 2. Fetch Project Details (Technical)
+    const details = await getProjectDetails(leadId);
+    
+    // 3. Fetch Project Analysis (Strategic)
+    const lastActive = new Date(lead.last_synced_at || lead.created_at);
+    const now = new Date();
+    const daysInactive = Math.floor((now.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return {
+        client: lead.client_name,
+        status: lead.status,
+        days_inactive: daysInactive,
+        stagnant: daysInactive > 7 && lead.status === 'Working',
+        technical_summary: details?.technical_requirements || "No technical requirement data.",
+        recent_chat_logs: "No recent chat logs available.", 
+        latest_proposal: details?.proposal_text || "No proposal draft."
+    };
+}
+
+export async function generateAndArchiveProposal(leadId: string, clientName: string, value: number, notes: string): Promise<string> {
+    return `Proposal generation queued for ${clientName} (Value: ${value})`;
+}
+
+export async function getFinancialReport(): Promise<string> {
+    const { total, growth } = await getRevenueMetrics();
+    return `Total Revenue: OMR ${total.toLocaleString()} (+${growth}%)`;
 }

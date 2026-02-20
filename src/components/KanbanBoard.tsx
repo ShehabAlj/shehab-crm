@@ -20,7 +20,7 @@ import {
   useSortable
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import confetti from "canvas-confetti";
+// import confetti from "canvas-confetti"; // Dynamic import used instead
 import { Lead } from "@/lib/googleSheets";
 import { LeadCard } from "./LeadCard";
 
@@ -152,12 +152,14 @@ export function KanbanBoard({ initialLeads }: { initialLeads: Lead[] }) {
     setActiveId(null);
 
     // Logging for debugging
+    /*
     console.log("Drag End Details:", { 
         activeId: active.id, 
         overId: over?.id, 
         activeLeadStatus: activeLead?.status,
         isOverColumn: over ? COLUMNS.some(c => c.id === over.id) : false
     });
+    */
 
     // If dropped outside or same place
     if (!over || !activeLead) return;
@@ -182,7 +184,7 @@ export function KanbanBoard({ initialLeads }: { initialLeads: Lead[] }) {
     
     if (targetColumn) {
         const newStatus = targetColumn.statuses[0];
-        console.log("Valid Drop Target:", { targetColumnId: targetColumn.id, newStatus });
+        // console.log("Valid Drop Target:", { targetColumnId: targetColumn.id, newStatus });
 
         // --- DIFFERENT COLUMN ---
         if (!targetColumn.statuses.includes(activeLead.status)) {
@@ -199,6 +201,7 @@ export function KanbanBoard({ initialLeads }: { initialLeads: Lead[] }) {
             setSyncingIds(prev => new Set(prev).add(activeLead.id));
 
             if (newStatus === 'Done') {
+                const confetti = (await import("canvas-confetti")).default;
                 confetti({
                     particleCount: 100,
                     spread: 70,
@@ -217,7 +220,7 @@ export function KanbanBoard({ initialLeads }: { initialLeads: Lead[] }) {
                 });
 
                 if (!res.ok) throw new Error("Sync failed");
-                console.log("Supabase update successful");
+                // console.log("Supabase update successful");
 
             } catch (error) {
                 console.error("Failed to update status", error);

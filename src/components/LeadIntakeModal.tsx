@@ -14,6 +14,8 @@ export function LeadIntakeModal() {
     projectType: "",
     value: "",
     notes: "",
+    heatLevel: "Warm",
+    status: "New"
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,13 +29,11 @@ export function LeadIntakeModal() {
         body: JSON.stringify({
           ...formData,
           value: parseInt(formData.value) || 0,
-          heatLevel: "Warm",
-          status: "New",
         }),
       });
 
       if (res.ok) {
-        setFormData({ clientName: "", projectType: "", value: "", notes: "" });
+        setFormData({ clientName: "", projectType: "", value: "", notes: "", heatLevel: "Warm", status: "New" });
         setIsOpen(false);
         router.refresh();
       } else {
@@ -129,10 +129,9 @@ export function LeadIntakeModal() {
             <div className="space-y-1">
                 <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Heat Level</label>
                 <select
-                    value="Warm" // Default for now until we fully wire it
-                    // onChange={(e) => setFormData({...formData, heatLevel: e.target.value})} // TODO: Wire fully if needed
-                    className="w-full bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 opacity-50 cursor-not-allowed"
-                    disabled
+                    value={formData.heatLevel}
+                    onChange={(e) => setFormData({...formData, heatLevel: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 appearance-none transition-all"
                 >
                     <option value="Hot">Hot</option>
                     <option value="Warm">Warm</option>
@@ -143,11 +142,15 @@ export function LeadIntakeModal() {
              <div className="space-y-1">
                 <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Status</label>
                  <select
-                    value="New"
-                    className="w-full bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-blue-500/50 opacity-50 cursor-not-allowed"
-                    disabled
+                    value={formData.status}
+                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-blue-500/50 appearance-none transition-all"
                 >
                     <option value="New">New</option>
+                    <option value="In Talk">In Talk</option>
+                    <option value="Working">Working</option>
+                    <option value="Testing">Testing</option>
+                    <option value="Done">Done</option>
                 </select>
              </div>
           </div>

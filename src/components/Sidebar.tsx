@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { FolderKanban, DollarSign, Settings, Users, Server, Activity } from "lucide-react";
+import { FolderKanban, DollarSign, Settings, Users, Server, Activity, LogOut } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { JarvisCommand } from "./JarvisCommand";
 
@@ -15,19 +15,21 @@ const navigation = [
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
-export function Sidebar() {
+export function Sidebar({ userEmail: initialUserEmail }: { userEmail?: string | null }) {
   const pathname = usePathname();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(initialUserEmail || null);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    const getUser = async () => {
-       const { data: { user } } = await supabase.auth.getUser();
-       if (user) setUserEmail(user.email || "Exec");
-    };
-    getUser();
-  }, [supabase]);
+    if (!initialUserEmail) {
+        const getUser = async () => {
+           const { data: { user } } = await supabase.auth.getUser();
+           if (user) setUserEmail(user.email || "Exec");
+        };
+        getUser();
+    }
+  }, [supabase, initialUserEmail]);
 
   const handleLogout = async () => {
      await supabase.auth.signOut();
@@ -82,7 +84,7 @@ export function Sidebar() {
                 {userEmail ? userEmail[0].toUpperCase() : 'LA'}
              </span>
              <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-red-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                <LogOut className="h-4 w-4" />
              </span>
         </button>
       </div>

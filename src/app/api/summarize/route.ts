@@ -13,12 +13,8 @@ export async function POST(req: Request) {
     if (!apiKey) {
         // Fallback mock if no key
         return NextResponse.json({ 
-            summary: [
-                "EXECUTIVE SUMMARY: Key missing. Please configure OPENROUTER_API_KEY.",
-                "TECHNICAL REQUIREMENTS: Unable to process.",
-                "NEXT STEP: Add API key to .env.local"
-            ] 
-        });
+            error: "System Configuration Error: OPENROUTER_API_KEY is missing." 
+        }, { status: 500 });
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {

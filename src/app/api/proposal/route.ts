@@ -8,8 +8,8 @@ export async function POST(req: Request) {
     
     if (!apiKey) {
         return NextResponse.json({ 
-            proposal: "ERROR: OPENROUTER_API_KEY not found. Please configure it in .env.local to generate proposals." 
-        });
+            error: "System Configuration Error: OPENROUTER_API_KEY is missing." 
+        }, { status: 500 });
     }
 
     const prompt = `

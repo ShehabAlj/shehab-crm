@@ -19,16 +19,23 @@ export const metadata: Metadata = {
   description: "Executive Management System",
 };
 
-export default function RootLayout({
+import { createClient } from "@/utils/supabase/server";
+
+// ...
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-            <Sidebar />
+            <Sidebar userEmail={user?.email} />
             <main className="flex-1 overflow-y-auto h-screen p-8">
             {children}
             </main>

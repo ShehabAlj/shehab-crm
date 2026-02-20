@@ -1,6 +1,4 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
-import { findLeadByName, updateProjectStatus, getFinancialReport, generateAndArchiveProposal, getDeepClientContext } from '@/lib/jarvis-actions';
+import { getRecentMemory, saveMemory } from '@/lib/jarvis-memory';
 
 export async function POST(req: Request) {
     try {
@@ -9,12 +7,16 @@ export async function POST(req: Request) {
 
         const supabase = await createClient();
         
+        // 0. Get User ID (Required for Memory)
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
         // 1. Gather Global Context (Mini-State) - Scoped to User via RLS
         const { data: leads } = await supabase.from('leads').select('id, client_name, status, project_value, notes');
         const globalSummary = leads?.map(l => `- ${l.client_name} (${l.status})`).join('\n') || "No leads.";
 
         // 2. Identify Subject (Simple Heuristic or AI-based if needed)
-        // For efficiency, we check if any client name appears in the command
+        // ... (keep existing detectedClient logic) ...
         let focusedContext = "";
         const detectedClient = leads?.find(l => command.toLowerCase().includes(l.client_name.toLowerCase()));
         
@@ -38,6 +40,9 @@ export async function POST(req: Request) {
             }
         }
 
+        // 2.5. Fetch Long-Term Memory
+        const memory = await getRecentMemory(supabase, user.id, 15);
+        
         const systemPrompt = `
             You are Jarvis, the Senior Strategic Consultant & Chief of Staff.
             Your goal is to maximize ROI and project velocity. Use "Chain of Thought" reasoning.
@@ -69,8 +74,16 @@ export async function POST(req: Request) {
             Shall I draft a technical review?"
         `;
 
-        // 3. Call AI
+        // 3. Call AI with History
         const apiKey = process.env.OPENROUTER_API_KEY;
+        
+        // Construct Message Array: System -> History -> User
+        const messages = [
+            { "role": "system", "content": systemPrompt },
+            ...memory.map(m => ({ "role": m.role, "content": m.content })),
+            { "role": "user", "content": command }
+        ];
+
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -81,18 +94,23 @@ export async function POST(req: Request) {
             },
             body: JSON.stringify({
                 "model": "google/gemini-2.0-flash-001",
-                "messages": [
-                    { "role": "system", "content": systemPrompt },
-                    { "role": "user", "content": command }
-                ]
+                "messages": messages
             })
         });
 
         const aiData = await response.json();
         const content = aiData.choices?.[0]?.message?.content || "";
 
-        // 4. Parse & Execute logic...
-        // 4. Parse & Execute logic...
+        // 4. Archiving (Fire-and-Forget)
+        // Store the interaction in long-term memory
+        if (user && user.id) {
+            Promise.all([
+                saveMemory(supabase, user.id, command, 'user', 'web'),
+                saveMemory(supabase, user.id, content, 'assistant', 'web')
+            ]).catch(err => console.error("Memory saving failed", err));
+        }
+
+        // 5. Parse & Execute logic...
         const results: string[] = [];
         let finalReply = content; // Default to raw text if no JSON found
 

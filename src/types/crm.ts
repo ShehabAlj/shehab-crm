@@ -23,7 +23,7 @@ export interface ProjectDetails {
     lead_id: string; // Foreign Key matches leads.id
     chat_logs?: string;
     milestones?: Milestone[]; // JSONB
-    ai_summary?: string; 
+    ai_summary?: any; // JSONB (Used for structured technical specs)
     proposal_draft?: string;
     user_id?: string;
 }

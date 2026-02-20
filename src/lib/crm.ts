@@ -257,7 +257,7 @@ export async function getDeepClientContext(leadId: string) {
         status: lead.status,
         days_inactive: daysInactive,
         stagnant: daysInactive > 7 && lead.status === 'Working',
-        technical_summary: analysis?.technical_summary || details?.ai_summary || "No technical requirement data.",
+        technical_summary: analysis?.technical_summary || (typeof details?.ai_summary === 'object' ? JSON.stringify(details.ai_summary, null, 2) : details?.ai_summary) || "No technical requirement data.",
         recent_chat_logs: details?.chat_logs || "No recent chat logs available.", 
         latest_proposal: analysis?.proposal_content || details?.proposal_draft || "No proposal draft."
     };

@@ -246,6 +246,8 @@ export async function getDeepClientContext(leadId: string) {
     const details = await getProjectDetails(leadId);
     
     // 3. Fetch Project Analysis (Strategic)
+    const analysis = await getProjectAnalysis(leadId);
+
     const lastActive = new Date(lead.last_synced_at || lead.created_at);
     const now = new Date();
     const daysInactive = Math.floor((now.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24));
@@ -255,9 +257,9 @@ export async function getDeepClientContext(leadId: string) {
         status: lead.status,
         days_inactive: daysInactive,
         stagnant: daysInactive > 7 && lead.status === 'Working',
-        technical_summary: details?.technical_requirements || "No technical requirement data.",
-        recent_chat_logs: "No recent chat logs available.", 
-        latest_proposal: details?.proposal_text || "No proposal draft."
+        technical_summary: analysis?.technical_summary || details?.ai_summary || "No technical requirement data.",
+        recent_chat_logs: details?.chat_logs || "No recent chat logs available.", 
+        latest_proposal: analysis?.proposal_content || details?.proposal_draft || "No proposal draft."
     };
 }
 
